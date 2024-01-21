@@ -1,25 +1,41 @@
 # Increase log verbosity
 log_level = "DEBUG"
 
+bind_addr = "172.31.60.118" # private address of the EC2 instance running Nomad
+
+plugin "docker" {
+  config {
+    allow_privileged = true
+    volumes {
+      enabled = true
+    }
+    extra_labels = ["job_name", "job_id", "task_group_name", "task_name", "namespace", "node_name", "node_id"]
+  }
+}
+
 plugin "raw_exec" {
   config {
-    enabled = true
+    enabled=true
   }
 }
 
 consul {
-  address = "127.0.0.1:8501"
-  grpc_address = "127.0.0.1:8503"
-  ssl       = true
-  ca_file   = "~/consul-agent-ca.pem"
-  grpc_ca_file = "~/consul-agent-ca.pem"
-  cert_file = "~/server1.dc1.consul.crt"
-  key_file  = "~/server1.dc1.consul.key"
-  token = "token"
+  address = "172.31.60.118:8500" # private address of the EC2 instance running Consul
+  grpc_address = "172.31.60.118:8502"
+  ssl       = false
+
+  # these are certs that consul-nomad use to establish TLS/mTLS
+  ca_file   = ""
+  grpc_ca_file = ""
+  cert_file = ""
+  key_file  = ""
+
+  # input the nomad server token.
+  token = ""
 }
 
 # Setup data dir
-data_dir = "/tmp/server1"
+data_dir = "/home/ec2-user/nomad/server1" # data dir for the server
 
 # Enable the server
 server {
@@ -31,13 +47,14 @@ server {
 
 # Require TLS
 tls {
-  http = true
-  rpc  = true
+  http = false
+  rpc  = false
 
-  ca_file   = "~/consul-agent-ca.pem"
-  cert_file = "~/server1.dc1.consul.crt"
-  key_file  = "~/server1.dc1.consul.key"
+  # These are certs that Nomad used to interact with Nomad over TLS/mTLS
+  ca_file   = ""
+  cert_file = ""
+  key_file  = ""
 
-  verify_server_hostname = true
-  verify_https_client    = true
+  verify_server_hostname = false
+  verify_https_client    = false
 }
