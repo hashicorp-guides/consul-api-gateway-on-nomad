@@ -5,7 +5,7 @@ job "golang" {
     network {
       mode = "bridge"
       port "http" {
-#        static = "9090"
+        static = 9090
         to = "9090"
       }
     }
@@ -22,14 +22,30 @@ job "golang" {
         }
       }
     }
-
+    
     task "echo" {
       driver = "docker"
 
+      artifact {
+        source = "<path to artifact with certs>"
+        destination = "/certs"
+      }
+
       env {
-        CONSUL_HTTP_ADDR="172.31.60.118:8500" # Consul server address
-        CONSUL_GRPC_ADDR="172.31.60.118:8502" # used for xDS
-        token = ""
+        CONSUL_CLIENT_KEY="/certs/<path to consul client key>"
+        CONSUL_CLIENT_CERT="/certs/<path to consul cert>"
+        CONSUL_CACERT="/certs/<path to consul CA cert>"
+      }
+
+      template {
+        destination = "config/consul.vars"
+        env         = true
+        change_mode = "restart"
+        data        = <<EOF
+{{- with nomadVar "nomad/jobs/golang/apps/echo" -}}
+CONSUL_HTTP_TOKEN = {{ .consul_token }}
+{{- end -}}
+EOF
       }
 
       config {

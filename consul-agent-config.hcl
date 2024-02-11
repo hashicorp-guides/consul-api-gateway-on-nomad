@@ -1,23 +1,20 @@
 ui = true
 enable_script_checks = false
 disable_remote_exec = true
-client_addr = "172.31.60.118" # the private IP of the EC2 instance
-bind_addr = "172.31.60.118" # the private IP of the EC2 instance
-verify_incoming = false
+client_addr = "{{ GetPrivateIP }}" # the private IP of the EC2 instance
+bind_addr = "{{ GetPrivateIP }}" # the private IP of the EC2 instance
 tls {
   defaults {
-    verify_incoming = false
-    verify_outgoing = false
-    ca_file = ""
-    cert_file = ""
-    key_file = ""
-  }
-  internal_rpc {
-    verify_server_hostname = false
+    verify_incoming = true
+    verify_outgoing = true
+    verify_server_hostname = true
+    ca_file = "<path to consul CA cert>"
+    cert_file = "<path to consul agent cert>"
+    key_file = "<path to consul agent key>"
   }
 }
 ports {
-  http = 8500 # becomes -1 if https is enabled, else http requests will still work
+  http = -1 # becomes -1 if https is enabled, else http requests will still work
   https = 8501
   grpc = 8502 # used by xDS as well.
   grpc_tls = 8503
@@ -32,9 +29,6 @@ acl = {
 
   tokens = {
     // consul agent token
-    agent = ""
-
-    // default token
-    default = ""
+    agent = "<consul agent token>"
   }
 }
