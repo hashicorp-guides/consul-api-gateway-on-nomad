@@ -14,8 +14,8 @@ plugin "docker" {
 # can't use sockaddr/template here like in bind_addr above
 # sockaddr works well with Nomad registration, but doesn't work for envoy bootstrapping
 consul {
-  address = "172.31.94.134:8501" # private address of the EC2 instance running Consul
-  grpc_address = "172.31.94.134:8502"
+  address = "<consul ip address>:8501" # private address of the EC2 instance running Consul
+  grpc_address = "<consul ip address>:8503"
   ssl       = true
 
   # these are certs that consul-nomad use to establish TLS/mTLS

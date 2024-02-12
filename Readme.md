@@ -33,7 +33,7 @@
     - `consul config write service-default.hcl `
 10. Create Nomad variables for api-gateway and the echo-app, below are the sample commands.
    ```
-   nomad var put nomad/jobs/consul/conf consul_token=<consul token for api-gw> consul_http_addr=<consul https url:consul https port> consul_grpc_addr=<consul https grpc url:consul grpc port>
+   nomad var put nomad/jobs/consul/conf consul_token=<consul token for api-gw> consul_http_addr=<consul https url:consul https port> consul_grpc_addr=<consul https grpc url:consul grpc_tls port>
    nomad var put nomad/jobs/golang/apps/echo consul_token=<consul token for echo-app>
    ```
 11. Start API-GW, following instructions below.
@@ -64,41 +64,3 @@
 
 https://developer.hashicorp.com/nomad/docs/configuration/consul
 
-Notes:
-
-consul config write proxy-default.hcl
-consul config write service-default.hcl
-consul config write hello-app-intentions.hcl
-consul config write gateway-listeners.hcl
-consul config write my-http-route.hcl
-
-
-consul certs - https://developer.hashicorp.com/consul/tutorials/security-operations/tls-encryption-openssl-secure, https://developer.hashicorp.com/consul/commands/tls/cert
-nomad certs - https://developer.hashicorp.com/nomad/docs/commands/tls/cert-create
-nomad volume mount - https://developer.hashicorp.com/nomad/docs/job-specification/volume
-
-
-```
-consul tls ca create
-consul tls cert create -server -node="ip-172.31.94.134.ec2.internal" -dc="dc1" -additional-ipaddress=172.31.94.134 -additional-dnsname="ec2-44-201-210-58.compute-1.amazonaws.com" -additional-dnsname="ip-172.31.94.134.ec2.internal"
-
-nomad tls ca create
-nomad tls cert create -client -additional-ipaddress=172.31.94.134 -additional-dnsname="ec2-44-201-210-58.compute-1.amazonaws.com" -additional-dnsname="ip-172.31.94.134.ec2.internal" -additional-dnsname="server.global.nomad"
-
-export CONSUL_HTTP_ADDR=https://172.31.94.134:8501
-export CONSUL_CACERT=~/hashicorp-consul-gateway-on-nomad/certs/consul/consul-agent-ca.pem
-export CONSUL_CLIENT_CERT=~/hashicorp-consul-gateway-on-nomad/certs/consul/dc1-server-consul-0.pem
-export CONSUL_CLIENT_KEY=~/hashicorp-consul-gateway-on-nomad/certs/consul/dc1-server-consul-0-key.pem
-export CONSUL_HTTP_TOKEN=403b5555-d06d-c1b8-a663-36e3975662d4
-
-export NOMAD_ADDR=https://172.31.94.134:4646
-export NOMAD_CACERT=~/hashicorp-consul-gateway-on-nomad/certs/nomad/nomad-agent-ca.pem
-export NOMAD_CLIENT_CERT=~/hashicorp-consul-gateway-on-nomad/certs/nomad/global-client-nomad.pem
-export NOMAD_CLIENT_KEY=~/hashicorp-consul-gateway-on-nomad/certs/nomad/global-client-nomad-key.pem
-```
-
-
-```
-nomad var put nomad/jobs/consul/conf consul_token=172702c0-a023-d756-b91c-193dcf2659e5 consul_http_addr=https://172.31.94.134:8501 consul_grpc_addr=https://172.31.94.134:8502
-nomad var put nomad/jobs/golang/apps/echo consul_token=55074cad-bca2-5bb2-43bf-69f34eeaab91
-```

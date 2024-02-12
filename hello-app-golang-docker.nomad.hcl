@@ -26,17 +26,6 @@ job "golang" {
     task "echo" {
       driver = "docker"
 
-      artifact {
-        source = "<path to artifact with certs>"
-        destination = "/certs"
-      }
-
-      env {
-        CONSUL_CLIENT_KEY="/certs/<path to consul client key>"
-        CONSUL_CLIENT_CERT="/certs/<path to consul cert>"
-        CONSUL_CACERT="/certs/<path to consul CA cert>"
-      }
-
       template {
         destination = "config/consul.vars"
         env         = true

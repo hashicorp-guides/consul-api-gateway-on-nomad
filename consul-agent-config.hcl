@@ -5,12 +5,13 @@ client_addr = "{{ GetPrivateIP }}" # the private IP of the EC2 instance
 bind_addr = "{{ GetPrivateIP }}" # the private IP of the EC2 instance
 tls {
   defaults {
-    verify_incoming = true
     verify_outgoing = true
-    verify_server_hostname = true
     ca_file = "<path to consul CA cert>"
     cert_file = "<path to consul agent cert>"
     key_file = "<path to consul agent key>"
+  }
+  grpc {
+    verify_incoming = false
   }
 }
 ports {
