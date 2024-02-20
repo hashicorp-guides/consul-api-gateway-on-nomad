@@ -6,9 +6,9 @@ bind_addr = "{{ GetPrivateIP }}" # the private IP of the EC2 instance
 tls {
   defaults {
     verify_outgoing = true
-    ca_file = "<path to consul CA cert>"
-    cert_file = "<path to consul agent cert>"
-    key_file = "<path to consul agent key>"
+    ca_file = "certs/consul/consul-agent-ca.pem"
+    cert_file = "certs/consul/dc1-server-consul-0.pem"
+    key_file = "certs/consul/dc1-server-consul-0-key.pem"
   }
   grpc {
     verify_incoming = false
@@ -27,9 +27,4 @@ acl = {
   enabled = true
   default_policy = "deny"
   enable_token_persistence = true
-
-  tokens = {
-    // consul agent token
-    agent = "<consul agent token>"
-  }
 }

@@ -1,31 +1,29 @@
-# default to the local image, but can be overriden by the user.
-# use `nomad job run -var="consul_envoy_image=<image_name>:<tag_name>" api-gateway.nomad` while running the job, to override the default image.
-variable "consul_envoy_image" {
-  description = "The Consul Envoy image to use"
-  type        = string
-  default     = "consul-envoy:local"
-}
+job "golang" {
 
-job "ingress" {
-
-  type = "service"
-
-  group "gateway" {
+  group "apps" {
 
     network {
       mode = "bridge"
       port "http" {
-        static = 8088
-        to = 8088
-      }
-
-      port "envoy-admin" {
-        static = 19000
-        to = 19000
+        static = 9090
+        to = "9090"
       }
     }
 
-    task "api" {
+    service {
+      name = "hello-app"
+      port = "9090"
+      provider = "consul"
+
+      connect {
+        # runs a sidecar proxy
+        sidecar_service {
+          proxy {}
+        }
+      }
+    }
+    
+    task "echo" {
       driver = "docker"
 
       template {
@@ -33,10 +31,8 @@ job "ingress" {
         env         = true
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar -}}
 CONSUL_HTTP_TOKEN = {{ .consul_token }}
-CONSUL_HTTP_ADDR = {{ .consul_http_addr }}
-CONSUL_GRPC_ADDR = {{ .consul_grpc_addr }}
 {{- end -}}
 EOF
       }
@@ -46,7 +42,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/golang/apps/echo" -}}
 {{ .consul_cacert }}
 {{- end -}}
 EOF
@@ -57,7 +53,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/golang/apps/echo" -}}
 {{ .consul_client_cert }}
 {{- end -}}
 EOF
@@ -68,7 +64,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/golang/apps/echo" -}}
 {{ .consul_client_key }}
 {{- end -}}
 EOF
@@ -81,17 +77,13 @@ EOF
       }
 
       config {
-        image = var.consul_envoy_image # image containing consul and envoy
+        image = "hashicorp/http-echo:latest"
+
         args = [
-          "consul",
-          "connect", "envoy",
-          "-gateway", "api",
-          "-register",
-          "-service", "my-api-gateway",
-          "-admin-bind", "0.0.0.0:19000",
-          "-ignore-envoy-compatibility",
-          "--",
-          "--log-level", "debug",
+          "-listen",
+          ":9090",
+          "-text",
+          "Hello World!",
         ]
       }
     }
