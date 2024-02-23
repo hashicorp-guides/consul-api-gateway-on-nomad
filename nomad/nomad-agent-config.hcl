@@ -25,16 +25,6 @@ consul {
   ca_file = "certs/consul/consul-agent-ca.pem"
   cert_file = "certs/consul/dc1-server-consul-0.pem"
   key_file = "certs/consul/dc1-server-consul-0-key.pem"
-
-  service_identity {
-    aud = ["consul.io"]
-    ttl = "1h"
-  }
-
-  task_identity {
-    aud = ["consul.io"]
-    ttl = "1h"
-  }
 }
 
 # Enable the server
