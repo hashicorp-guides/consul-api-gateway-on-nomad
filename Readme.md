@@ -65,8 +65,8 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    export CONSUL_HTTP_TOKEN=<Nomad agent token genererate in the previous step>
    export CONSUL_HTTP_ADDR=https://<ip addr of the consul node>:8501
    export CONSUL_CACERT=<path to server CA>
-   export CONSUL_CLIENT_CERT=<path to consul server cert>
-   export CONSUL_CLIENT_KEY=<path to consul server key>
+   export CONSUL_CLIENT_CERT=<path to Consul server cert>
+   export CONSUL_CLIENT_KEY=<path to Consul server key>
    ```
     - Start Nomad server `sudo nomad agent -dev -config=nomad/nomad-agent-config.hcl`
 7. Setup the environment variables for your Nomad CLI.
