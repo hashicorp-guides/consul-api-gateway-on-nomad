@@ -34,7 +34,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    These config files currently has the default path of `certs/` under this directory. So, if you have generated the certs in the same location, no need to update the paths.
 4. Start Consul agent.
     - Start Consul in dev mode `consul agent -dev -ui -data-dir /tmp/consul -config-file=consul/consul-agent-config.hcl`
-7. Create appropriate [ACL Tokens](https://developer.hashicorp.com/consul/tutorials/security/access-control-setup-production) for services to be deployed i.e. Nomad servers, Nomad clients, Consul servers, Consul clients, Example Apps, etc.
+5. Create appropriate [ACL Tokens](https://developer.hashicorp.com/consul/tutorials/security/access-control-setup-production) for services to be deployed i.e. Nomad servers, Nomad clients, Consul servers, Consul clients, Example Apps, etc.
    The corresponding policies can be found in the acl folder in this repo. Use the following commands to create the tokens and policies.
    ```
    consul acl bootstrap
@@ -59,7 +59,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    
    consul acl set-agent-token agent <acl token for consul agent create in the previous line>
    ```
-9. Start Nomad agent.
+6. Start Nomad agent.
     - Set up the environment variables in the Nomad node.
    ```
    export CONSUL_HTTP_TOKEN=<Nomad agent token genererate in the previous step>
@@ -69,14 +69,14 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    export CONSUL_CLIENT_KEY=<path to consul server key>
    ```
     - Start Nomad server `sudo nomad agent -dev -config=nomad/nomad-agent-config.hcl`
-10. Setup the environment variables for your Nomad CLI.
+7. Setup the environment variables for your Nomad CLI.
    ```
     export NOMAD_ADDR=https://<ip addr of the node>:4646
     export NOMAD_CACERT=<path to Nomad CA>
     export NOMAD_CLIENT_CERT=<path to Nomad client cert>
     export NOMAD_CLIENT_KEY=<path to Nomad client key>
    ```
-11. Create appropriate [ACL Tokens](https://developer.hashicorp.com/nomad/tutorials/access-control/access-control-tokens)
+8. Create appropriate [ACL Tokens](https://developer.hashicorp.com/nomad/tutorials/access-control/access-control-tokens)
     ```
     nomad acl bootstrap
     ```
@@ -85,7 +85,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     ```
     Note: this example generates and uses bootstrap token for simplicity, in production you should use a token with proper policies.
     The bootstrap token is used to create the policies and tokens for the services and Nomad clients.
-8. Deployment of API Gateway requires and image with both Consul and Envoy, build an image using the Dockerfile in this repo and push it to a registry of your choice.
+9. Deployment of API Gateway requires and image with both Consul and Envoy, build an image using the Dockerfile in this repo and push it to a registry of your choice.
    ```
    cd /consul-and-envoy
    docker build -t consul-envoy:latest .
@@ -94,17 +94,17 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    ```
    docker push consul-envoy:latest
    ```
-9. Write proxy-defaults and service-defaults in Consul. (If you don't have configs defined for each service and proxy already).
+10. Write proxy-defaults and service-defaults in Consul. (If you don't have configs defined for each service and proxy already).
     - Use files `proxy-defaults.hcl` and `service-defaults.hcl` in this repo.
     - `consul config write consul/defaults/proxy-default.hcl`
     - `consul config write consul/defaults/service-default.hcl`
-10. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the echo-app.
+11. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the echo-app.
     The variables have been put in `nomad/variables` folder in this repo. Update the values against the corresponding keys, post which you can run the below commands.
    ```
    nomad var put nomad/jobs/ingress/gateway/api @nomad/variables/gateway.json
    nomad var put nomad/jobs/golang/apps/echo @nomad/variables/hello-app.json
    ```
-11. Start API Gateway, following instructions below.
+12. Start API Gateway, following instructions below.
     - Look at the api-gateway-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run api-gateway-docker.nomad.hcl`
@@ -121,16 +121,16 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 15. Register http routes for API Gateway so that Envoy knows how and where to write the traffic.
     - Use file my-http-route.hcl in this repo.
     - Run `consul config write consul/api-gateway-configs/my-http-route.hcl`.
-12. Start hello-app following the instructions below..
+16. Start hello-app following the instructions below..
     - Look at the hello-app-golang-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run nomad/apps/hello-app-golang-docker.nomad.hcl`
     - Check Nomad UI, you should see the job running.
     - Check Consul UI, you should see the example-app registered.
-16. Test the API Gateway.
+17. Test the API Gateway.
     - Run `curl -v http://<api-gateway-address>:<api-gateway-port>/hello`
     - You should see the response from hello-app.
-17. For additional debugging, you could dive into Envoy configs through envoy admin url, Nomad job logs and Consul catalog service definition.
+18. For additional debugging, you could dive into Envoy configs through envoy admin url, Nomad job logs and Consul catalog service definition.
 
 # Additional Notes:
 1. You can give a try to Nomad workload and service identities if you are not running strict mTLS between Consul and Nomad OR have a terminating gateway between them.
