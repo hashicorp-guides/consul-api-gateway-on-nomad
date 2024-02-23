@@ -60,7 +60,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    consul acl set-agent-token agent <acl token for consul agent create in the previous line>
    ```
 6. Start Nomad agent.
-    - Set up the environment variables in the Nomad node.
+    - Set up the environment variables before starting the Nomad agent.
    ```
    export CONSUL_HTTP_TOKEN=<Nomad agent token genererate in the previous step>
    export CONSUL_HTTP_ADDR=https://<ip addr of the consul node>:8501
