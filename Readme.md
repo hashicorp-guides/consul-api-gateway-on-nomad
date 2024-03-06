@@ -107,7 +107,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     - Edit the ports and Consul address appropriately.
     - Run `nomad run api-gateway-docker.nomad.hcl`. (To use a Docker image from a remote registry, run `nomad run -var="consul_envoy_image=<remote repo>/consul-envoy:latest" api-gateway-docker.nomad.hcl`)
     - Check Nomad UI, you should see the job running.
-    - Check Consul UI, you should see the API Gateway registered.
+    - Check the Consul UI, you should see the API Gateway registered.
 13. Add intentions to allow traffic from API Gateway to example-app.
     - Use file rest-api-intentions.hcl in this repo.
     - Run `consul config write consul/intentions/hello-app-intentions.hcl`
