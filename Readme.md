@@ -3,7 +3,7 @@
 ## What is this?
 
 An API Gateway is used for controlling access at entry and traffic management.
-You can read more about it [here](https://developer.hashicorp.com/consul/docs/connect/gateways/api-gateway).
+You can read more about it the [API gateways overview documentation](https://developer.hashicorp.com/consul/docs/connect/gateways/api-gateway).
 
 This repository contains a working example of how to deploy an API Gateway using Consul and Nomad. It has the following.
 1. A Dockerfile to build an image with Consul and Envoy.
