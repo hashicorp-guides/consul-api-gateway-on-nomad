@@ -95,37 +95,50 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     - Use files `proxy-defaults.hcl` and `service-defaults.hcl` in this repo.
     - `consul config write consul/defaults/proxy-default.hcl`
     - `consul config write consul/defaults/service-default.hcl`
-11. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the echo-app.
-    The variables have been put in `nomad/variables` folder in this repo. Update the values of the corresponding keys, after which you can run the below commands.
+11. Once we have the Consul tokens for API Gateway and hello-app from step #5. Set them up as environment variables.
+    We will use these environment variables to create Nomad variables for the jobs in later steps.
+    ```
+    export CONSUL_API_GATEWAY_TOKEN=<token for api-gateway>
+    export $CONSUL_HELLO_APP_TOKEN=<token for hello-app>
+    ```
+12. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the hello-app.
    ```
-   nomad var put nomad/jobs/ingress/gateway/api @nomad/variables/gateway.json
-   nomad var put nomad/jobs/golang/apps/echo @nomad/variables/hello-app.json
+   nomad var put nomad/jobs/ingress/gateway/api \
+    consul_cacert=@certs/consul/consul-agent-ca.pem \
+    consul_client_cert=@certs/consul/dc1-server-consul-0.pem \
+    consul_client_key@certs/consul/dc1-server-consul-0-key.pem \
+    consul_grpc_addr=$CONSUL_GRPC_ADDR \
+    consul_http_addr=$CONSUL_HTTP_ADDR \
+    consul_token=$CONSUL_API_GATEWAY_TOKEN
+
+   nomad var put nomad/jobs/golang/apps/hello-app \
+    consul_token=$CONSUL_HELLO_APP_TOKEN
    ```
-12. Deploy the API Gateway.
+13. Deploy the API Gateway.
     - Look at the api-gateway-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run api-gateway-docker.nomad.hcl`. (To use a Docker image from a remote registry, run `nomad run -var="consul_envoy_image=<remote repo>/consul-envoy:latest" api-gateway-docker.nomad.hcl`)
     - Check Nomad UI, you should see the job running.
     - Check the Consul UI, you should see the API Gateway registered.
-13. Add intentions to allow traffic from API Gateway to example-app.
+14. Add intentions to allow traffic from API Gateway to example-app.
     - Use file rest-api-intentions.hcl in this repo.
     - Run `consul config write consul/intentions/hello-app-intentions.hcl`
-14. Register listener for API Gateway.
+15. Register listener for API Gateway.
     - Use file gateway-listeners.hcl in this repo.
     - Run `consul config write consul/api-gateway-configs/gateway-listeners.hcl`
-15. Register http routes for API Gateway so that Envoy knows how and where to write the traffic.
+16. Register http routes for API Gateway so that Envoy knows how and where to write the traffic.
     - Use file my-http-route.hcl in this repo.
     - Run `consul config write consul/api-gateway-configs/my-http-route.hcl`.
-16. Start hello-app.
+17. Start hello-app.
     - Look at the hello-app-golang-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run nomad/apps/hello-app-golang-docker.nomad.hcl`
     - Check Nomad UI, you should see the job running.
     - Check Consul UI, you should see the example-app registered.
-17. Test the API Gateway.
+18. Test the API Gateway.
     - Run `curl -v http://<api-gateway-address>:<api-gateway-port>/hello`
     - You should see the response from hello-app.
-18. For additional debugging, you could dive into Envoy configs through envoy admin url, Nomad job logs and Consul catalog service definition.
+19. For additional debugging, you could dive into Envoy configs through envoy admin url, Nomad job logs and Consul catalog service definition.
 
 # Additional Notes:
 1. You can give a try to Nomad workload and service identities if you are not running strict mTLS between Consul and Nomad OR have a terminating gateway between them.

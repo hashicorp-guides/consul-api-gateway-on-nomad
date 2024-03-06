@@ -23,7 +23,7 @@ job "golang" {
       }
     }
     
-    task "echo" {
+    task "hello-app" {
       driver = "docker"
 
       config {
