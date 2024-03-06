@@ -80,7 +80,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     ```
     export NOMAD_TOKEN=<token generated in the line above>
     ```
-    Note: this example generates and uses bootstrap token for simplicity, in production you should use a token with proper policies.
+    Note: this example generates and uses the bootstrap token for simplicity, in production you should use a token with proper policies.
     The bootstrap token is used to create the policies and tokens for the services and Nomad clients.
 9. Deployment of API Gateway requires and image with both Consul and Envoy, build an image using the Dockerfile in this repo and push it to a registry of your choice.
    ```
