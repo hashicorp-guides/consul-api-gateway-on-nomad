@@ -102,7 +102,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
    nomad var put nomad/jobs/ingress/gateway/api @nomad/variables/gateway.json
    nomad var put nomad/jobs/golang/apps/echo @nomad/variables/hello-app.json
    ```
-12. Start API Gateway, following instructions below.
+12. Deploy the API Gateway.
     - Look at the api-gateway-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run api-gateway-docker.nomad.hcl`. (To use a Docker image from a remote registry, run `nomad run -var="consul_envoy_image=<remote repo>/consul-envoy:latest" api-gateway-docker.nomad.hcl`)
