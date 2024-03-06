@@ -30,8 +30,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     nomad tls ca create
     nomad tls cert create -server -region global -additional-ipaddress=<ip addr of the node> -additional-dnsname=<hostname of the node> -additional-dnsname="client.global.nomad"
    ```
-3. Update the corresponding paths in `tls` settings for `consul/consul-agent-config.hcl` and `nomad/nomad-agent-config.hcl`. 
-   These config files currently has the default path of `certs/` under this directory. So, if you have generated the certs in the same location, no need to update the paths.
+3. Optionally, update the Consul and Nomad agent `tls` configurations if you're not using certificates you generated in the `certs/` directory in step 2. The agent configuration files can be found at `consul/consul-agent-config.hcl` and `nomad/nomad-agent-config.hcl`.
 4. Start Consul agent.
     - Start Consul in dev mode `consul agent -dev -ui -data-dir /tmp/consul -config-file=consul/consul-agent-config.hcl`
 5. Create appropriate [ACL Tokens](https://developer.hashicorp.com/consul/tutorials/security/access-control-setup-production) for services to be deployed i.e. Nomad servers, Nomad clients, Consul servers, Consul clients, Example Apps, etc.
