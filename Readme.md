@@ -19,7 +19,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 
 1. Navigate to the working-example directory (hashicorp-consul-gateway-on-nomad).
    `cd hashicorp-consul-gateway-on-nomad`
-2. Generate certs for Nomad and Consul. Sample certs generation and usage could be found here [Consul Certs](https://developer.hashicorp.com/consul/tutorials/security/tls-encryption-secure) and [Nomad Certs](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls).
+2. Generate certs for Nomad and Consul. Sample certs generation and usage can be found here [Consul Certs](https://developer.hashicorp.com/consul/tutorials/security/tls-encryption-secure) and [Nomad Certs](https://developer.hashicorp.com/nomad/tutorials/transport-security/security-enable-tls).
    Below are the commands to generate certificates in the `certs` folder. This example uses their path to configure Consul and Nomad.
    Remember, we have a single node deployment for this example, so the Consul server and the client are the same.
    ```bash
