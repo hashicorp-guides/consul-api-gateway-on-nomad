@@ -96,7 +96,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     - `consul config write consul/defaults/proxy-default.hcl`
     - `consul config write consul/defaults/service-default.hcl`
 11. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the echo-app.
-    The variables have been put in `nomad/variables` folder in this repo. Update the values against the corresponding keys, post which you can run the below commands.
+    The variables have been put in `nomad/variables` folder in this repo. Update the values of the corresponding keys, after which you can run the below commands.
    ```
    nomad var put nomad/jobs/ingress/gateway/api @nomad/variables/gateway.json
    nomad var put nomad/jobs/golang/apps/echo @nomad/variables/hello-app.json
