@@ -119,7 +119,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 15. Register http routes for API Gateway so that Envoy knows how and where to write the traffic.
     - Use file my-http-route.hcl in this repo.
     - Run `consul config write consul/api-gateway-configs/my-http-route.hcl`.
-16. Start hello-app following the instructions below..
+16. Start hello-app.
     - Look at the hello-app-golang-docker.nomad.hcl file in this repo.
     - Edit the ports and Consul address appropriately.
     - Run `nomad run nomad/apps/hello-app-golang-docker.nomad.hcl`
