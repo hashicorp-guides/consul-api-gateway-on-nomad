@@ -99,14 +99,17 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     We will use these environment variables to create Nomad variables for the jobs in later steps.
     ```
     export CONSUL_API_GATEWAY_TOKEN=<token for api-gateway>
-    export $CONSUL_HELLO_APP_TOKEN=<token for hello-app>
+    export CONSUL_HELLO_APP_TOKEN=<token for hello-app>
+    export CONSUL_CA_CERT=<path to consul CA>
+    export CONSUL_CLIENT_CERT=<path to consul client cert>
+    export CONSUL_CLIENT_KEY=<path to consul client key>
     ```
 12. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the hello-app.
    ```
    nomad var put nomad/jobs/ingress/gateway/api \
-    consul_cacert=@certs/consul/consul-agent-ca.pem \
-    consul_client_cert=@certs/consul/dc1-server-consul-0.pem \
-    consul_client_key@certs/consul/dc1-server-consul-0-key.pem \
+    consul_cacert=@CONSUL_CA_CERT \
+    consul_client_cert=@CONSUL_CLIENT_CERT \
+    consul_client_key@CONSUL_CLIENT_KEY \
     consul_grpc_addr=$CONSUL_GRPC_ADDR \
     consul_http_addr=$CONSUL_HTTP_ADDR \
     consul_token=$CONSUL_API_GATEWAY_TOKEN
