@@ -107,9 +107,9 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 12. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the hello-app.
    ```
    nomad var put nomad/jobs/ingress/gateway/api \
-    consul_cacert=@CONSUL_CA_CERT \
-    consul_client_cert=@CONSUL_CLIENT_CERT \
-    consul_client_key@CONSUL_CLIENT_KEY \
+    consul_cacert=@$CONSUL_CA_CERT \
+    consul_client_cert=@$CONSUL_CLIENT_CERT \
+    consul_client_key=@$CONSUL_CLIENT_KEY \
     consul_grpc_addr=$CONSUL_GRPC_ADDR \
     consul_http_addr=$CONSUL_HTTP_ADDR \
     consul_token=$CONSUL_API_GATEWAY_TOKEN
