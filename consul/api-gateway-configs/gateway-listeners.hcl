@@ -7,13 +7,5 @@ Listeners = [
     Port     = 8088
     Name     = "my-http-listener"
     Protocol = "http"
-    #    TLS = { // enables TLS
-    #      Certificates = [
-    #        {
-    #          Kind = "inline-certificate"
-    #          Name = "my-certificate"
-    #        }
-    #      ]
-    #    }
   }
 ]

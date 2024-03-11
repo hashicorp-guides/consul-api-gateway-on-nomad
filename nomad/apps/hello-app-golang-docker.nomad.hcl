@@ -5,7 +5,7 @@ job "golang" {
     network {
       mode = "bridge"
       port "http" {
-#        static = "9090"
+        static = 9090
         to = "9090"
       }
     }
@@ -22,15 +22,9 @@ job "golang" {
         }
       }
     }
-
-    task "echo" {
+    
+    task "hello-app" {
       driver = "docker"
-
-      env {
-        CONSUL_HTTP_ADDR="172.31.60.118:8500" # Consul server address
-        CONSUL_GRPC_ADDR="172.31.60.118:8502" # used for xDS
-        token = ""
-      }
 
       config {
         image = "hashicorp/http-echo:latest"
