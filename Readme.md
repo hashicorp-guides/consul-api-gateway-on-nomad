@@ -36,13 +36,14 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 5. Create appropriate [ACL Tokens](https://developer.hashicorp.com/consul/tutorials/security/access-control-setup-production) for services to be deployed i.e. Nomad servers, Nomad clients, Consul servers, Consul clients, Example Apps, etc.
    The corresponding policies can be found in the acl folder in this repo. Use the following commands to create the tokens and policies.
    ```
-   consul acl bootstrap
-   
-   export CONSUL_HTTP_TOKEN=<consul_bootstrap_token>
    export CONSUL_HTTP_ADDR=https://<ip addr of the node>:8501
    export CONSUL_CACERT=<path to consul CA>
    export CONSUL_CLIENT_CERT=<path to consul server cert>
    export CONSUL_CLIENT_KEY=<path to consul server key>
+
+   consul acl bootstrap
+
+   export CONSUL_HTTP_TOKEN=<consul_bootstrap_token>
 
    consul acl policy create -name "my-api-gateway" -rules @consul/acl/my-api-gateway-policy.hcl -description "api gateway policy"
    consul acl token create -description "Token for my-api-gateway" -policy-name "my-api-gateway"
@@ -55,7 +56,7 @@ We call it on-par because we have not deployed a multi-node setup, instead every
 
    consul acl policy create -name "consul-agent" -description "Consul Agent Policy" -rules @consul/acl/consul-agent-policy.hcl
    consul acl token create -description "d9acecc4-acd7-8bf7-2165-40c8c899ce7a agent token" -node-identity "<node id of the agent>:<dc>" -policy-name "consul-agent"
-   
+
    consul acl set-agent-token agent <acl token for consul agent create in the previous line>
    ```
 6. Start Nomad agent.
@@ -65,13 +66,13 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     grpc_address = "<Consul ip address>:8503"
     token = "<token created in Consul for Nomad ACL>"
     ```
-    - Start Nomad server `sudo nomad agent -dev -config=nomad/nomad-agent-config.hcl`
+    - Start Nomad server `sudo nomad agent -dev -dev-connect -config=nomad/nomad-agent-config.hcl`
 7. Setup the environment variables for your Nomad CLI.
    ```
     export NOMAD_ADDR=https://<ip addr of the node>:4646
     export NOMAD_CACERT=<path to Nomad CA>
-    export NOMAD_CLIENT_CERT=<path to Nomad client cert>
-    export NOMAD_CLIENT_KEY=<path to Nomad client key>
+    export NOMAD_CLIENT_CERT=<path to Nomad server cert>
+    export NOMAD_CLIENT_KEY=<path to Nomad server key>
    ```
 8. Create appropriate [ACL Tokens](https://developer.hashicorp.com/nomad/tutorials/access-control/access-control-tokens)
     ```
@@ -82,32 +83,35 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     ```
     Note: this example generates and uses the bootstrap token for simplicity, in production you should use a token with proper policies.
     The bootstrap token is used to create the policies and tokens for the services and Nomad clients.
-9. Deployment of API Gateway requires and image with both Consul and Envoy, build an image using the Dockerfile in this repo.
+9. Deployment of API Gateway requires and image with both Consul and Envoy, build an image using the Dockerfile in this repo. If you are not going to push the image to a remote registry, be sure not to tag it as `"latest"` so that Nomad does not try to download it from a remote registry.
    ```
-   cd /consul-and-envoy
-   docker build -t consul-envoy:latest .
+   cd ./consul-and-envoy
+   docker build -t consul-envoy:local .
    ```
-   Optionally, you can push the image to a remote registry.
+   Optionally, you can build the image and push it to a remote registry.
    ```
-   docker push consul-envoy:latest
+   docker build -t example/consul-envoy:latest .
+   docker push example/consul-envoy:latest
    ```
 10. Write proxy-defaults and service-defaults in Consul. (If you don't have configs defined for each service and proxy already).
     - Use files `proxy-defaults.hcl` and `service-defaults.hcl` in this repo.
     - `consul config write consul/defaults/proxy-default.hcl`
     - `consul config write consul/defaults/service-default.hcl`
 11. Once we have the Consul tokens for API Gateway and hello-app from step #5. Set them up as environment variables.
-    We will use these environment variables to create Nomad variables for the jobs in later steps.
+    We will use these environment variables to create Nomad variables for the jobs in later steps. When setting the variable for the gRPC address, be sure to use the TLS port.
     ```
     export CONSUL_API_GATEWAY_TOKEN=<token for api-gateway>
     export CONSUL_HELLO_APP_TOKEN=<token for hello-app>
-    export CONSUL_CA_CERT=<path to consul CA>
+    export CONSUL_CACERT=<path to consul CA>
     export CONSUL_CLIENT_CERT=<path to consul client cert>
     export CONSUL_CLIENT_KEY=<path to consul client key>
+    export CONSUL_GRPC_ADDR=<private Consul IP address>:8503
+    export CONSUL_HTTP_ADDR=https://<private Consul IP address>:8501
     ```
 12. Create [Nomad variables](https://developer.hashicorp.com/nomad/tutorials/variables/variables-create) for api-gateway and the hello-app.
    ```
    nomad var put nomad/jobs/ingress/gateway/api \
-    consul_cacert=@$CONSUL_CA_CERT \
+    consul_cacert=@$CONSUL_CACERT \
     consul_client_cert=@$CONSUL_CLIENT_CERT \
     consul_client_key=@$CONSUL_CLIENT_KEY \
     consul_grpc_addr=$CONSUL_GRPC_ADDR \
@@ -139,6 +143,8 @@ We call it on-par because we have not deployed a multi-node setup, instead every
     - Check Nomad UI, you should see the job running.
     - Check Consul UI, you should see the example-app registered.
 18. Test the API Gateway.
+    - Run `nomad job status ingress` to find the allocation for the API gateway.
+    - Run `nomad alloc status` to find the address for that allocation.
     - Run `curl -v http://<api-gateway-address>:<api-gateway-port>/hello`
     - You should see the response from hello-app.
 19. For additional debugging, you could dive into Envoy configs through envoy admin url, Nomad job logs and Consul catalog service definition.

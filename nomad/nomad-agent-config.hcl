@@ -16,9 +16,7 @@ plugin "docker" {
 consul {
   ssl       = true
 
-  # set as environment variable CONSUL_HTTP_ADDR
   address = "<Consul ip address>:8501" # private address of the instance running Consul
-  # set as environment variable CONSUL_GRPC_ADDR
   grpc_address = "<Consul ip address>:8503"
 
   # these are certs that consul-nomad use to establish TLS/mTLS
@@ -28,7 +26,7 @@ consul {
   key_file = "certs/consul/dc1-server-consul-0-key.pem"
 
   # input the nomad server token.
-  token = "<token created in Consul for Nomad ACL>"
+  token = "<token created in Consul for Nomad agent>"
 }
 
 # Enable the server
@@ -46,8 +44,8 @@ tls {
 
   # These are certs that Nomad uses to interact with Nomad over TLS/mTLS
   ca_file   = "certs/nomad/nomad-agent-ca.pem"
-  cert_file = "certs/nomad/global-client-nomad.pem"
-  key_file  = "certs/nomad/global-client-nomad-key.pem"
+  cert_file = "certs/nomad/global-server-nomad.pem"
+  key_file  = "certs/nomad/global-server-nomad-key.pem"
 
   verify_server_hostname = true
   verify_https_client    = true
