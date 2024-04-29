@@ -6,7 +6,7 @@ event_prefix "" {
   policy = "write"
 }
 identity_prefix "" {
-  policy = "write"
+  policy     = "write"
   intentions = "write"
 }
 key_prefix "" {
@@ -20,6 +20,6 @@ query_prefix "" {
   policy = "write"
 }
 service_prefix "" {
-  policy = "write"
+  policy     = "write"
   intentions = "write"
 }
