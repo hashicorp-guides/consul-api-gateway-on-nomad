@@ -1,15 +1,25 @@
-# default to the local image, but can be overriden by the user.
-# use `nomad job run -var="consul_envoy_image=<image_name>:<tag_name>" api-gateway.nomad.hcl` while running the job, to override the default image.
-variable "consul_envoy_image" {
-  description = "The Consul Envoy image to use"
+variable "consul_image" {
+  description = "The Consul image to use"
   type        = string
-  default     = "consul-envoy:local"
+  default     = "hashicorp/consul:1.18.1"
+}
+
+variable "envoy_image" {
+  description = "The Envoy image to use"
+  type        = string
+  default     = "hashicorp/envoy:1.28.1"
 }
 
 variable "namespace" {
   description = "The Nomad namespace to use, which will bind to a specific Consul role"
   type        = string
   default     = "ingress"
+}
+
+variable "api_gateway_name" {
+  description = "The name of the API Gateway in Consul"
+  type        = string
+  default     = "my-api-gateway"
 }
 
 job "ingress" {
@@ -33,24 +43,21 @@ job "ingress" {
       # namespace = "foo"
     }
 
-    task "api" {
+    task "setup" {
       driver = "docker"
 
       config {
-        image = var.consul_envoy_image # image containing consul and envoy
+        image = var.consul_image # image containing Consul
+        command = "/bin/sh"
         args = [
-          "consul",
-          "connect", "envoy",
-          "-gateway", "api",
-          "-register",
-          "-deregister-after-critical", "10s",
-          "-service", "my-api-gateway",
-          "-admin-bind", "0.0.0.0:19000",
-          "-ignore-envoy-compatibility",
-          # "-namespace", "foo", For Consul Enterprise only
-          "--",
-          "--log-level", "debug",
+          "-c",
+          "consul connect envoy -gateway api -register -deregister-after-critical 10s -service ${var.api_gateway_name} -admin-bind 0.0.0.0:19000 -ignore-envoy-compatibility -bootstrap > ${NOMAD_ALLOC_DIR}/envoy_bootstrap.json"
         ]
+      }
+
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
       }
 
       env {
@@ -72,7 +79,7 @@ job "ingress" {
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
 {{ .consul_cacert }}
 {{- end -}}
 EOF
@@ -83,7 +90,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
 {{ .consul_client_cert }}
 {{- end -}}
 EOF
@@ -94,11 +101,30 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/api" -}}
+{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
 {{ .consul_client_key }}
 {{- end -}}
 EOF
       }
+
+    }
+
+    task "api" {
+      driver = "docker"
+
+      config {
+        image = var.envoy_image # image containing Envoy
+        args = [
+          "--config-path",
+          "${NOMAD_ALLOC_DIR}/envoy_bootstrap.json",
+          "--log-level",
+          "${meta.connect.log_level}",
+          "--concurrency",
+          "${meta.connect.proxy_concurrency}",
+          "--disable-hot-restart"
+        ]
+      }
+
 
 
     }

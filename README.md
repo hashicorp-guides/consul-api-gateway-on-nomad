@@ -8,41 +8,18 @@ You can read more about it the [API gateways overview documentation][1].
 This repository contains a working example of how to deploy an API Gateway using
 Consul and Nomad. It includes the following:
 
-1. A Dockerfile to build an API Gateway image with Consul and Envoy.
-2. Consul ACL roles, policies, and intentions for the API Gateway.
-3. Nomad job specifications to deploy the API Gateway and an example upstream
+1. Consul ACL roles, policies, and intentions for the API Gateway.
+2. Nomad job specifications to deploy the API Gateway and an example upstream
    application.
-4. A quick setup for trying it all out locally. This setup is similar to a
+3. A quick setup for trying it all out locally. This setup is similar to a
    production-grade deployment with mTLS enabled for both Consul and Nomad, but
    runs only on a single node.
 
-This example uses Nomad's [Workload Identity][2] to authorize the gateway job to
-correctly register itself with Consul. The API Gateway is deployed in its own
-Nomad namespace. You'll add a Consul ACL role that the Consul binding rule
-matches for that Nomad namespace. That Consul ACL role grants the appropriate
-permissions to the API Gateway.
-
-## Build the Docker image
-
-The API Gateway requires a Docker image that includes both Consul and Envoy. You
-can build an image using the Dockerfile in this repo.
-
-If you are only trying this example out locally and not pushing the image to a
-remote registry, be sure not to tag the image as `"latest"` so that Nomad does
-not try to download it from a remote registry:
-
-```
-cd ./consul-and-envoy
-docker build -t consul-envoy:local .
-```
-
-Optionally, you can build the image and push it to a remote registry.
-
-```
-cd ./consul-and-envoy
-docker build -t example.com/consul-envoy:latest .
-docker push example.com/consul-envoy:latest
-```
+This example uses Nomad's [Workload Identity][2] to authorize a Consul task to
+bootstrap the Envoy gateway task and correctly register it with Consul. The API
+Gateway is deployed in its own Nomad namespace. You'll add a Consul ACL role
+that the Consul binding rule matches for that Nomad namespace. That Consul ACL
+role grants the appropriate permissions to the API Gateway.
 
 ## Local quickstart setup
 
@@ -231,7 +208,7 @@ same namespace that the job will be deployed to.
 
 ```
 nomad var put -namespace ingress \
-    nomad/jobs/ingress/gateway/api \
+    nomad/jobs/ingress/gateway/setup \
     consul_cacert=@$CONSUL_CACERT \
     consul_client_cert=@$CONSUL_CLIENT_CERT \
     consul_client_key=@$CONSUL_CLIENT_KEY
@@ -249,12 +226,13 @@ Run the Nomad job.
 nomad job run ./api-gateway.nomad.hcl
 ```
 
-If you have a specific Docker image or Nomad namespace you'd like to use, pass
+If you have specific Docker images or Nomad namespace you'd like to use, pass
 the `-var` option to the `nomad job run` command. For example:
 
 ```
 nomad job run \
-    -var="consul_envoy_image=example.com/consul-envoy:latest \
+    -var="consul_image=hashicorp/consul:1.18.1 \
+    -var="envoy_image=hashicorp/envoy:1.28.1 \
     -var="namespace=consul"
 ```
 
