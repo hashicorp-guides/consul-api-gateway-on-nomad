@@ -1,3 +1,6 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
 bind_addr = "{{ GetPrivateIP }}" # private address of the EC2 instance running Nomad
 
 acl {
