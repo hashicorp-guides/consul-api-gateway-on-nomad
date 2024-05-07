@@ -2,7 +2,7 @@ Kind = "service-intentions"
 Name = "hello-app"
 Sources = [
   {
-    Name = "*"
+    Name   = "*"
     Action = "allow"
   }
 ]

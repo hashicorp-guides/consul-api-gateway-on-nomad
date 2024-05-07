@@ -22,8 +22,8 @@ Rules = [
 
 Parents = [
   {
-    Kind = "api-gateway"
-    Name = "my-api-gateway"
+    Kind        = "api-gateway"
+    Name        = "my-api-gateway"
     SectionName = "my-http-listener"
   }
 ]
