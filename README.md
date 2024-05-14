@@ -234,6 +234,7 @@ nomad job run \
     -var="consul_image=hashicorp/consul:1.18.1" \
     -var="envoy_image=hashicorp/envoy:1.28.1" \
     -var="namespace=consul"
+    ./api-gateway.nomad.hcl
 ```
 
 Once the deployment is complete, you can check the Consul UI to see the API
