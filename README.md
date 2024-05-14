@@ -233,7 +233,7 @@ the `-var` option to the `nomad job run` command. For example:
 nomad job run \
     -var="consul_image=hashicorp/consul:1.18.1" \
     -var="envoy_image=hashicorp/envoy:1.28.1" \
-    -var="namespace=consul" \
+    -var="namespace=ingress" \
     ./api-gateway.nomad.hcl
 ```
 
