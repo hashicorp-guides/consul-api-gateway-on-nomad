@@ -21,6 +21,10 @@ Gateway is deployed in its own Nomad namespace. You'll add a Consul ACL role
 that the Consul binding rule matches for that Nomad namespace. That Consul ACL
 role grants the appropriate permissions to the API Gateway.
 
+Please refer to [Defer a Consul API Gateway on Nomad]
+(https://developer.hashicorp.com/nomad/tutorials/integrate-consul/deploy-api-gateway-on-nomad) 
+to read the accompanying tutorial for this repo. 
+
 ## Local quickstart setup
 
 If you already have running Nomad and Consul clusters with Workload Identity as
