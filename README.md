@@ -191,6 +191,8 @@ policy. Note that the name of the role must match the binding rule
 Nomad Workload Identity with Consul, when used with the `ingress` namespace you
 just created.
 
+>NOTE: Update the service name inside the `api-gateway.policy.hcl` if you intend to change the api-gateway service name by overriding `var.api_gateway_name` below.
+
 ```
 consul acl policy create -name "api-gateways" \
     -description "api gateway policy" \
@@ -248,16 +250,18 @@ Gateway registered.
 This section will run an example upstream application `hello` and configure
 access to it from the API Gateway.
 
-1. Add intentions to allow traffic from the API Gateway to `hello` by running
+1. Configure Service Defaults to set the `hello-app` service type as `http` by running `consul config write example/hello-app-service-defaults.hcl`
+
+2. Add intentions to allow traffic from the API Gateway to `hello` by running
    `consul config write example/hello-app-intentions.hcl`
 
-2. Register a listener for the API Gateway by running `consul config write
+3. Register a listener for the API Gateway by running `consul config write
    example/gateway-listeners.hcl`
 
-3. Register http routes for the API Gateway so that Envoy knows how and where to
+4. Register http routes for the API Gateway so that Envoy knows how and where to
    write the traffic by running `consul config write example/my-http-route.hcl`
 
-4. Start the `hello` app by running `nomad run example/hello-app.nomad.hcl`
+5. Start the `hello` app by running `nomad run example/hello-app.nomad.hcl`
 
 Once the deployment is complete, you can test the API Gateway.
 - Run `nomad job status -namespace ingress ingress` to find the allocation for
