@@ -19,7 +19,7 @@ variable "namespace" {
   default     = "ingress"
 }
 
-job "ingress" {
+job "my-api-gateway" {
 
   namespace = var.namespace
 
@@ -76,7 +76,7 @@ job "ingress" {
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_cacert }}
 {{- end -}}
 EOF
@@ -87,7 +87,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_client_cert }}
 {{- end -}}
 EOF
@@ -98,7 +98,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_client_key }}
 {{- end -}}
 EOF
