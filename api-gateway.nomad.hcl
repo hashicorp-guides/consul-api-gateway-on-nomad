@@ -4,13 +4,13 @@
 variable "consul_image" {
   description = "The Consul image to use"
   type        = string
-  default     = "hashicorp/consul:1.18.1"
+  default     = "hashicorp/consul:1.19.1"
 }
 
 variable "envoy_image" {
   description = "The Envoy image to use"
   type        = string
-  default     = "hashicorp/envoy:1.28.1"
+  default     = "hashicorp/envoy:1.29.7"
 }
 
 variable "namespace" {
@@ -19,13 +19,7 @@ variable "namespace" {
   default     = "ingress"
 }
 
-variable "api_gateway_name" {
-  description = "The name of the API Gateway in Consul"
-  type        = string
-  default     = "my-api-gateway"
-}
-
-job "ingress" {
+job "my-api-gateway" {
 
   namespace = var.namespace
 
@@ -54,7 +48,7 @@ job "ingress" {
         command = "/bin/sh"
         args = [
           "-c",
-          "consul connect envoy -gateway api -register -deregister-after-critical 10s -service ${var.api_gateway_name} -admin-bind 0.0.0.0:19000 -ignore-envoy-compatibility -bootstrap > ${NOMAD_ALLOC_DIR}/envoy_bootstrap.json"
+         "consul connect envoy -gateway api -register -deregister-after-critical 10s -service ${NOMAD_JOB_NAME} -admin-bind 0.0.0.0:19000 -ignore-envoy-compatibility -bootstrap > ${NOMAD_ALLOC_DIR}/envoy_bootstrap.json"
         ]
       }
 
@@ -82,7 +76,7 @@ job "ingress" {
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_cacert }}
 {{- end -}}
 EOF
@@ -93,7 +87,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_client_cert }}
 {{- end -}}
 EOF
@@ -104,7 +98,7 @@ EOF
         env         = false
         change_mode = "restart"
         data        = <<EOF
-{{- with nomadVar "nomad/jobs/ingress/gateway/setup" -}}
+{{- with nomadVar "nomad/jobs/my-api-gateway/gateway/setup" -}}
 {{ .consul_client_key }}
 {{- end -}}
 EOF
