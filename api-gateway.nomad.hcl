@@ -19,12 +19,6 @@ variable "namespace" {
   default     = "ingress"
 }
 
-variable "api_gateway_name" {
-  description = "The name of the API Gateway in Consul"
-  type        = string
-  default     = "my-api-gateway"
-}
-
 job "ingress" {
 
   namespace = var.namespace
@@ -54,7 +48,7 @@ job "ingress" {
         command = "/bin/sh"
         args = [
           "-c",
-          "consul connect envoy -gateway api -register -deregister-after-critical 10s -service ${var.api_gateway_name} -admin-bind 0.0.0.0:19000 -ignore-envoy-compatibility -bootstrap > ${NOMAD_ALLOC_DIR}/envoy_bootstrap.json"
+         "consul connect envoy -gateway api -register -deregister-after-critical 10s -service ${NOMAD_JOB_NAME} -admin-bind 0.0.0.0:19000 -ignore-envoy-compatibility -bootstrap > ${NOMAD_ALLOC_DIR}/envoy_bootstrap.json"
         ]
       }
 
