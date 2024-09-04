@@ -208,7 +208,7 @@ same namespace that the job will be deployed to.
 
 ```shell
 nomad var put -namespace ingress \
-    nomad/jobs/ingress/gateway/setup \
+    nomad/jobs/my-api-gateway/gateway/setup \
     consul_cacert=@$CONSUL_CACERT \
     consul_client_cert=@$CONSUL_CLIENT_CERT \
     consul_client_key=@$CONSUL_CLIENT_KEY
